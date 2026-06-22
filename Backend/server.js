@@ -24,9 +24,9 @@ const db = mysql.createPool({
 let sensorData = { gas: 0, api: 0 };
 let sensorReports = [];
 
-const mqttClient = mqtt.connect(process.env.MQTT_SERVER, {
-    username: process.env.MQTT_USER,
-    password: process.env.MQTT_PASS,
+const mqttClient = mqtt.connect(process.env.MQTT_SERVER || 'mqtt://broker.hivemq.com', {
+    username: process.env.MQTT_USER || '',
+    password: process.env.MQTT_PASS || '',
     rejectUnauthorized: false // like setInsecure() in ESP32
 });
 
@@ -109,7 +109,7 @@ app.post('/api/auth/login', async (req, res) => {
         await db.query('UPDATE users SET last_login = NOW() WHERE id = ?', [user.id]);
 
         // Generate JWT
-        const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET || 'fallback_secret_key_123', { expiresIn: '1d' });
         res.json({ success: true, message: 'Login successful', token, email: user.email });
     } catch (err) {
         res.json({ success: false, message: err.message });
