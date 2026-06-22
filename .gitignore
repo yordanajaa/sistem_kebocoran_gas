@@ -1,0 +1,46 @@
+# ⚠️ IMPORTANT: JANGAN UPLOAD FILE INI KE PUBLIC!
+# Environment & Config Files
+.env
+config.php
+
+# Composer & NPM
+vendor/
+node_modules/
+composer.lock
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+error_log
+
+# Temporary Files
+*.tmp
+*.temp
+*.cache
+
+# Backup Files
+*.bak
+*.backup
+*.old
+
+# Database Dumps
+*.sql.gz
+*.sql.zip
+
+# Audio/Video (optional)
+*.mp3
+*.mp4
+*.m4a
+*.wav
+*.avi

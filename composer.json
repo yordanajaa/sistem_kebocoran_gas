@@ -1,0 +1,14 @@
+{
+    "name": "otp-system/php",
+    "description": "OTP Testing System with PHP, MySQL and Gmail",
+    "type": "project",
+    "require": {
+        "php": ">=7.4",
+        "phpmailer/phpmailer": "^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "OTPSystem\\": "src/"
+        }
+    }
+}
