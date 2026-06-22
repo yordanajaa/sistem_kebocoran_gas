@@ -13,10 +13,11 @@ app.use(express.json());
 
 // --- Database Connection ---
 const db = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME
+    host: process.env.MYSQLHOST || process.env.DB_HOST || 'localhost',
+    user: process.env.MYSQLUSER || process.env.DB_USER || 'root',
+    password: process.env.MYSQLPASSWORD || process.env.DB_PASS || '',
+    database: process.env.MYSQLDATABASE || process.env.DB_NAME || 'otp_system',
+    port: process.env.MYSQLPORT || 3306
 });
 
 // --- MQTT Connection ---
