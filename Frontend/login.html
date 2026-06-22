@@ -293,14 +293,14 @@
         </form>
         
         <div class="links">
-            <a href="reset-password.php">Forgot password?</a>
+            <a href="reset-password.html">Forgot password?</a>
         </div>
     </div>
     
     <script>
         // Check if already logged in
         if (localStorage.getItem('token')) {
-            window.location.href = 'dashboard.php';
+            window.location.href = 'dashboard.html';
         }
 
         function showMessage(text, type = 'info') {
@@ -347,7 +347,7 @@
                     localStorage.setItem('userEmail', data.email || 'User');
                     showMessage('Login successful! Redirecting...', 'success');
                     setTimeout(() => {
-                        window.location.href = 'dashboard.php';
+                        window.location.href = 'dashboard.html';
                     }, 1000);
                 } else {
                     btn.classList.remove('loading');
