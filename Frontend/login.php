@@ -1,6 +1,4 @@
-<?php
-// PHP session removed. Now using JWT in localStorage.
-?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
