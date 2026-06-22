@@ -11,6 +11,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Root Route for Browser check
+app.get('/', (req, res) => {
+    res.json({ message: 'IoT Gas Leak API is running successfully!' });
+});
+
 // --- Database Connection ---
 const db = mysql.createPool({
     host: process.env.MYSQLHOST || process.env.DB_HOST || 'localhost',
