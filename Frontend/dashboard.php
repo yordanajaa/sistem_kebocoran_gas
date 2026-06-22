@@ -1,0 +1,652 @@
+<!-- PHP session removed. Now using JWT -->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IOT</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        /* Navbar */
+        .navbar {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideDown 0.6s ease-out;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .user-email {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        .btn-logout {
+            padding: 8px 20px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-logout:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+        
+        /* Main Content */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px;
+        }
+        
+        .dashboard-header {
+            margin-bottom: 32px;
+            animation: slideDown 0.6s ease-out 0.2s both;
+        }
+        
+        .dashboard-header h1 {
+            font-size: 2rem;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        
+        .dashboard-header p {
+            color: #6b7280;
+            font-size: 1rem;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            animation: scaleIn 0.6s ease-out both;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card:nth-child(1) { animation-delay: 0.3s; }
+        .stat-card:nth-child(2) { animation-delay: 0.4s; }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .stat-card:hover::before {
+            left: 100%;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .stat-title {
+            font-size: 0.875rem;
+            color: #6b7280;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .stat-icon.gas {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        }
+        
+        .stat-icon.heat {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            color: #9ca3af;
+        }
+        
+        /* Gauge Container */
+        .gauge-container {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            animation: scaleIn 0.6s ease-out 0.5s both;
+        }
+        
+        .gauge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+        }
+        
+        .gauge-item {
+            text-align: center;
+        }
+        
+        .gauge-wrapper {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+        }
+        
+        .gauge-svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+        
+        .gauge-bg {
+            fill: none;
+            stroke: #e5e7eb;
+            stroke-width: 12;
+            stroke-linecap: round;
+        }
+        
+        .gauge-fill {
+            fill: none;
+            stroke-width: 12;
+            stroke-linecap: round;
+            stroke-dasharray: 440;
+            stroke-dashoffset: 440;
+            transition: stroke-dashoffset 0.5s ease, stroke 0.3s ease;
+        }
+        
+        .gauge-fill.gas {
+            stroke: url(#gradientGas);
+        }
+        
+        .gauge-fill.heat {
+            stroke: url(#gradientHeat);
+        }
+        
+        .gauge-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        
+        .gauge-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .gauge-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+        
+        .gauge-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        
+        .gauge-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .gauge-status.normal {
+            background: #d1fae5;
+            color: #059669;
+        }
+        
+        .gauge-status.warning {
+            background: #fed7aa;
+            color: #ea580c;
+        }
+        
+        .gauge-status.danger {
+            background: #fee2e2;
+            color: #dc2626;
+            animation: pulse 1s ease-in-out infinite;
+        }
+        
+        /* Logs */
+        .logs-container {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-top: 32px;
+            animation: scaleIn 0.6s ease-out 0.6s both;
+        }
+        
+        .logs-header {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 16px;
+        }
+        
+        .logs-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .log-item {
+            padding: 12px 16px;
+            border-left: 3px solid #e5e7eb;
+            margin-bottom: 8px;
+            background: #f9fafb;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            color: #4b5563;
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        .log-item.critical {
+            border-left-color: #ef4444;
+            background: #fee2e2;
+            color: #dc2626;
+            font-weight: 500;
+        }
+        
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-badge.online {
+            background: #d1fae5;
+            color: #059669;
+        }
+        
+        .status-badge.offline {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e5e7eb;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: rotate 1s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-brand">MONITORING</div>
+        <div class="navbar-right">
+            <div class="user-info">
+                <div class="user-avatar" id="nav-avatar">U</div>
+                <div class="user-email" id="nav-email">user@example.com</div>
+            </div>
+            <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="container">
+        <div class="dashboard-header">
+            <h1>IoT Monitoring Dashboard</h1>
+            <p>Real-time sensor data monitoring</p>
+        </div>
+        
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Gas Level</span>
+                    <div class="stat-icon gas">💨</div>
+                </div>
+                <div class="stat-value" id="stat-gas">0</div>
+                <div class="stat-label">Current Reading</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Heat Sensor</span>
+                    <div class="stat-icon heat">🔥</div>
+                </div>
+                <div class="stat-value" id="stat-heat">0</div>
+                <div class="stat-label">Current Reading</div>
+            </div>
+        </div>
+        
+        <!-- Gauges -->
+        <div class="gauge-container">
+            <div class="gauge-grid">
+                <div class="gauge-item">
+                    <div class="gauge-wrapper">
+                        <svg class="gauge-svg" viewBox="0 0 200 200">
+                            <defs>
+                                <linearGradient id="gradientGas" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <circle class="gauge-bg" cx="100" cy="100" r="70" />
+                            <circle id="gauge-gas" class="gauge-fill gas" cx="100" cy="100" r="70" />
+                        </svg>
+                        <div class="gauge-center">
+                            <div class="gauge-value" id="gauge-gas-value">0</div>
+                            <div class="gauge-label">ATM</div>
+                        </div>
+                    </div>
+                    <div class="gauge-title">Gas Level</div>
+                    <span class="gauge-status normal" id="status-gas">Normal</span>
+                </div>
+                
+                <div class="gauge-item">
+                    <div class="gauge-wrapper">
+                        <svg class="gauge-svg" viewBox="0 0 200 200">
+                            <defs>
+                                <linearGradient id="gradientHeat" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#dc2626;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <circle class="gauge-bg" cx="100" cy="100" r="70" />
+                            <circle id="gauge-heat" class="gauge-fill heat" cx="100" cy="100" r="70" />
+                        </svg>
+                        <div class="gauge-center">
+                            <div class="gauge-value" id="gauge-heat-value">0</div>
+                            <div class="gauge-label">TEMP</div>
+                        </div>
+                    </div>
+                    <div class="gauge-title">Heat Sensor</div>
+                    <span class="gauge-status normal" id="status-heat">Normal</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Logs -->
+        <div class="logs-container">
+            <div class="logs-header">
+                System Logs
+                <span class="status-badge online" id="connection-status">
+                    <span class="status-dot"></span>
+                    Connected
+                </span>
+            </div>
+            <div class="logs-list" id="logs"></div>
+        </div>
+    </div>
+    
+    <div class="loading-overlay" id="loading">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <script>
+        const API_URL = 'https://sistemkebocorangas-production.up.railway.app/api/status';
+        let seenReports = new Set();
+        
+        // Token Check
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = 'login.php';
+        }
+
+        // Set User Info
+        const userEmail = localStorage.getItem('userEmail') || 'User';
+        document.getElementById('nav-email').textContent = userEmail;
+        document.getElementById('nav-avatar').textContent = userEmail.charAt(0).toUpperCase();
+        
+        function updateGauge(type, value) {
+            const percent = Math.min(Math.max(value / 4095, 0), 1);
+            const circumference = 2 * Math.PI * 70;
+            const offset = circumference - (percent * circumference);
+            
+            document.getElementById(`gauge-${type}`).style.strokeDashoffset = offset;
+            document.getElementById(`gauge-${type}-value`).textContent = Math.round(value);
+            document.getElementById(`stat-${type}`).textContent = Math.round(value);
+            
+            // Update status
+            const statusEl = document.getElementById(`status-${type}`);
+            statusEl.className = 'gauge-status';
+            
+            if (type === 'gas') {
+                if (value > 2500) {
+                    statusEl.classList.add('danger');
+                    statusEl.textContent = 'Danger';
+                } else if (value > 2000) {
+                    statusEl.classList.add('warning');
+                    statusEl.textContent = 'Warning';
+                } else {
+                    statusEl.classList.add('normal');
+                    statusEl.textContent = 'Normal';
+                }
+            } else if (type === 'heat') {
+                if (value < 2000) {
+                    statusEl.classList.add('danger');
+                    statusEl.textContent = 'Danger';
+                } else if (value < 2500) {
+                    statusEl.classList.add('warning');
+                    statusEl.textContent = 'Warning';
+                } else {
+                    statusEl.classList.add('normal');
+                    statusEl.textContent = 'Normal';
+                }
+            }
+        }
+        
+        function addLog(message, isCritical = false) {
+            if (seenReports.has(message)) return;
+            seenReports.add(message);
+            
+            const logsContainer = document.getElementById('logs');
+            const logItem = document.createElement('div');
+            logItem.className = 'log-item' + (isCritical ? ' critical' : '');
+            logItem.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logsContainer.insertBefore(logItem, logsContainer.firstChild);
+            
+            // Keep only last 50 logs
+            while (logsContainer.children.length > 50) {
+                logsContainer.removeChild(logsContainer.lastChild);
+            }
+        }
+        
+        async function fetchData() {
+            try {
+                const response = await fetch(API_URL, {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                
+                if (response.status === 401 || response.status === 403) {
+                    logout(); // Invalid token
+                    return;
+                }
+
+                const data = await response.json();
+                
+                updateGauge('gas', data.gas || 0);
+                updateGauge('heat', data.api || 0);
+                
+                if (data.reports) {
+                    data.reports.forEach(report => {
+                        addLog(report, report.includes('CRITICAL'));
+                    });
+                }
+                
+                // Update connection status
+                const statusEl = document.getElementById('connection-status');
+                statusEl.className = 'status-badge online';
+                statusEl.innerHTML = '<span class="status-dot"></span> Connected';
+                
+            } catch (error) {
+                console.error('Fetch error:', error);
+                const statusEl = document.getElementById('connection-status');
+                statusEl.className = 'status-badge offline';
+                statusEl.innerHTML = '<span class="status-dot"></span> Disconnected';
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userEmail');
+            window.location.href = 'login.php';
+        }
+        
+        // Initialize
+        fetchData();
+        setInterval(fetchData, 500);
+        
+        // Add initial log
+        addLog('Dashboard initialized');
+    </script>
+</body>
+</html>
