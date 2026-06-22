@@ -532,7 +532,7 @@
     </div>
     
     <script>
-        const API_URL = 'http://localhost:3000/api/status';
+        const API_URL = 'https://sistemkebocorangas-production.up.railway.app/api/status';
         let seenReports = new Set();
         
         // Token Check
